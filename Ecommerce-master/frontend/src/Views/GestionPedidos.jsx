@@ -1,34 +1,25 @@
-    import React, { useState, useEffect } from 'react';
-    import { fetchConToken } from '../api/api';
+    import {useEffect } from 'react';
+    import { useDispatch, useSelector } from "react-redux"
+    import { fetchPedidos, updatePedidoEstado } from "../redux/pedidosSlice.js";
+
+
+
 
     const GestionPedidos = () => {
-    const [pedidos, setPedidos] = useState([]);
-    const [loading, setLoading] = useState(true);
+    const dispatch = useDispatch()
+    const pedidos = useSelector(state => state.pedidos.list)
+    const loading = useSelector(state => state.pedidos.loading)
+
+    useEffect(() => {
+        dispatch(fetchPedidos())
+    }, [dispatch])
+
 
     const estadosPosibles = ['PAGADO', 'EN_PREPARACION', 'LISTO_PARA_RECOGER', 'FINALIZADO'];
 
-    useEffect(() => {
-        fetchConToken('/pedidos')
-        .then(data => {
-            setPedidos(data);
-            setLoading(false);
-        })
-        .catch(error => {
-            console.error("Error al cargar pedidos:", error);
-            setLoading(false);
-        });
-    }, []);
-
     const handleEstadoChange = (pedidoId, nuevoEstado) => {
-        fetchConToken(`/pedidos/${pedidoId}/estado`, 'PATCH', { estado: nuevoEstado })
-        .then(pedidoActualizado => {
-            setPedidos(prev => 
-            prev.map(p => p.idPedido === pedidoId ? pedidoActualizado : p)
-            );
-        })
-        .catch(error => console.error('Error al actualizar estado:', error));
-    };
-
+        dispatch(updatePedidoEstado({ pedidoId, nuevoEstado }))
+    }
     if (loading) return <p className="mt-20 text-center">Cargando pedidos...</p>;
 
     return (
