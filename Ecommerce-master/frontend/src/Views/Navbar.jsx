@@ -1,21 +1,24 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { useCarrito } from '../context/CarritoContext';
+import { useDispatch, useSelector } from 'react-redux';
+import { logout } from '../redux/slices/authSlice';
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   // Obtenemos los nuevos valores del contexto incluyendo user
-  const { carrito, user, isAuthenticated, logout } = useCarrito(); 
+  const { isAuthenticated } = useSelector((state) => state.auth);
+  const dispatch = useDispatch();
   const navigate = useNavigate();
+
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
   };
 
   const handleLogout = () => {
-    logout(); // Llama a la función de logout del contexto
-    navigate('/login'); // Redirige al login
-    setIsMenuOpen(false); // Cerrar menú móvil al hacer logout
+    dispatch(logout());
+    navigate('/login');
+    setIsMenuOpen(false);
   };
 
   const closeMenu = () => {

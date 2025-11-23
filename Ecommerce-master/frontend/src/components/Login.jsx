@@ -1,41 +1,46 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { useCarrito } from '../context/CarritoContext';
+// Importamos hooks de Redux y nuestras acciones
+import { useDispatch, useSelector } from 'react-redux';
+import { loginUser, clearAuthState } from '../redux/slices/authSlice';
 
 const Login = () => {
   const [username, setUsername] = useState('');
-  const [password, setPassword] = useState(''); // El estado ya existía, ahora lo usaremos
-  const { login } = useCarrito();
+  const [password, setPassword] = useState('');
+  
+  const dispatch = useDispatch();
   const navigate = useNavigate();
+  
+  // Leemos el estado global de Auth
+  const { loading, error, isAuthenticated } = useSelector((state) => state.auth);
+
+  // Si se loguea con éxito, redirigir al Home
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate('/');
+    }
+    // Limpiamos errores al desmontar o cambiar
+    return () => { dispatch(clearAuthState()) };
+  }, [isAuthenticated, navigate, dispatch]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    const credentials = { username, password };
-
-    fetch('http://localhost:4002/api/v1/auth/authenticate', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(credentials)
-    })
-    .then(response => {
-        if (!response.ok) throw new Error('Usuario o contraseña incorrectos.');
-        return response.json();
-    })
-    .then(data => {
-        login(data.access_token);
-        alert('¡Bienvenido!');
-        navigate('/');
-    })
-    .catch(error => {
-        console.error('Error en el login:', error);
-        alert(error.message);
-    });
+    // Disparamos la acción de Redux
+    dispatch(loginUser({ username, password }));
   };
 
   return (
     <div className="min-h-screen flex justify-center items-center bg-gray-50">
       <div className="bg-white shadow-lg rounded-2xl p-8 w-full max-w-md">
         <h2 className="text-2xl font-bold mb-6 text-center text-gray-800">Iniciar sesión</h2>
+        
+        {/* Mostrar mensaje de error si existe en Redux */}
+        {error && (
+          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4">
+            {error}
+          </div>
+        )}
+
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <input
@@ -47,8 +52,6 @@ const Login = () => {
               required
             />
           </div>
-          
-          {/* CAMPO DE CONTRASEÑA AGREGADO */}
           <div>
             <input
               type="password"
@@ -59,12 +62,14 @@ const Login = () => {
               required
             />
           </div>
-
           <button
             type="submit"
-            className="w-full bg-blue-600 text-white py-3 rounded-md hover:bg-blue-700 transition"
+            disabled={loading} // Deshabilitar si está cargando
+            className={`w-full text-white py-3 rounded-md transition ${
+              loading ? 'bg-blue-400' : 'bg-blue-600 hover:bg-blue-700'
+            }`}
           >
-            Entrar
+            {loading ? 'Entrando...' : 'Entrar'}
           </button>
         </form>
         <p className="mt-4 text-sm text-center text-gray-600">
