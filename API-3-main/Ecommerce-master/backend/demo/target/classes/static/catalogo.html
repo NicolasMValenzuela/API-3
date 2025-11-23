@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <h1>Catálogo de Vehículos</h1>
+    
+    <img id="vehicleImage" alt="Imagen del vehículo" />
+
+    <script>
+        for (let vehicleId = 1; vehicleId <= 5; vehicleId++) {
+
+            fetch(`http://localhost:4002/vehicles/${vehicleId}/imagen`)
+                .then(response => response.text())
+                .then(base64Image => {
+                document.getElementById('vehicleImage').src = `data:image/jpeg;base64,${base64Image}`;
+                })
+                .catch(err => console.error('Error cargando la imagen:', err));
+        }
+    </script>
+
+    
+</body>
+</html>
