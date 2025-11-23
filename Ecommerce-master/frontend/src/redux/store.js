@@ -13,7 +13,7 @@ const store = configureStore({
 
     pedidos: pedidosReducer,
     
-    orders: ordersReducer,
+    
 
   },
 });
