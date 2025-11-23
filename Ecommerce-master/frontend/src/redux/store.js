@@ -13,5 +13,3 @@ const store = configureStore({
     vehicles: vehiclesReducer,
   },
 });
-
-export default store
