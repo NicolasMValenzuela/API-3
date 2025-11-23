@@ -1,5 +1,7 @@
 import { createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'axios';
+import { createSlice } from '@reduxjs/toolkit';
+
 
 const URL = 'http://localhost:4002/orders';
 

@@ -1,6 +1,6 @@
 export const fetchConToken = (url, method = 'GET', body = null) => {
 const token = localStorage.getItem('accessToken');
-
+const API_BASE_URL='http://localhost:4002';
 const headers = {
     'Content-Type': 'application/json',
 };
@@ -18,7 +18,7 @@ if (body) {
     config.body = JSON.stringify(body);
 }
 
-return fetch(`http://localhost:4002${url}`, config)
+return fetch(`${API_BASE_URL}${url}`, config)
     .then(response => {
     if (!response.ok) {
         if (response.status === 401 || response.status === 403) {
@@ -55,3 +55,5 @@ return fetch(`http://localhost:4002${url}`, config)
         throw error;
     });
 };
+
+export  const API_BASE_URL = 'http://localhost:4002';

@@ -6,10 +6,18 @@ import pedidosReducer from "./pedidosSlice.js"
 import ordersReducer from './ordersSlice.js';
 
 
-import authReducer from './slices/authSlice';
+import authReducer from './authSlice.js';
 
-const store = configureStore({
+import cartReducer from './cartSlice.js';
+
+export const store = configureStore({
   reducer: { 
     vehicles: vehiclesReducer,
+    pedidos: pedidosReducer,
+    orders: ordersReducer,
+    auth: authReducer,
+    cart: cartReducer,
   },
 });
+
+export default store;

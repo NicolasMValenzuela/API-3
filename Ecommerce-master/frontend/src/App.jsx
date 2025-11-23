@@ -16,8 +16,21 @@ import { CarritoProvider } from "./context/CarritoContext";
 import { VehiclesProvider } from "./context/Vehicles";
 import MisPedidos from "./Views/MisPedidos";
 import GestionPedidos from "./Views/GestionPedidos";
+import { useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchCart } from "./redux/cartSlice.js";
+
 
 function App() {
+  const dispatch = useDispatch();
+  const isAuthenticated = useSelector((state) => state.auth.isAuthenticated);
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      dispatch(fetchCart());
+    }
+  }, [isAuthenticated, dispatch]);
+
   return (
     <VehiclesProvider>
       <CarritoProvider>
