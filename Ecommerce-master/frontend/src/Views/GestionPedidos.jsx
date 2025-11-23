@@ -1,10 +1,8 @@
     import {useEffect } from 'react';
     import { useDispatch, useSelector } from "react-redux"
-    import { fetchPedidos, updatePedidoEstado } from "../redux/pedidosSlice.js";
+    import { fetchPedidos, actualizarPedido } from "../redux/pedidosSlice.js";
 
-
-
-
+    
     const GestionPedidos = () => {
     const dispatch = useDispatch()
     const pedidos = useSelector(state => state.pedidos.list)
@@ -18,7 +16,7 @@
     const estadosPosibles = ['PAGADO', 'EN_PREPARACION', 'LISTO_PARA_RECOGER', 'FINALIZADO'];
 
     const handleEstadoChange = (pedidoId, nuevoEstado) => {
-        dispatch(updatePedidoEstado({ pedidoId, nuevoEstado }))
+        dispatch(actualizarPedido({ idPedido: pedidoId,  datos: { estado: nuevoEstado } }))
     }
     if (loading) return <p className="mt-20 text-center">Cargando pedidos...</p>;
 

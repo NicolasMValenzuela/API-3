@@ -1,5 +1,12 @@
 import axios from 'axios';
-import { store } from '../redux/store'; // Importamos el store directamente
+
+let tokenInMemory = null;
+
+export const setToken = (token) => {
+    tokenInMemory = token;
+};
+
+
 
 // Creamos una instancia de axios
 const axiosInstance = axios.create({

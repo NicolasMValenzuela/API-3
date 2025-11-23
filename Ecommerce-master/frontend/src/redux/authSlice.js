@@ -1,5 +1,7 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
+import { setToken } from '../api/axiosConfig';
+
 
 const AUTH_URL = "http://localhost:4002/api/v1/auth";
 
@@ -66,6 +68,7 @@ export const loginUser = createAsyncThunk(
             state.loading = false;
             state.isAuthenticated = true;
             state.token = action.payload.access_token; // ✅ El token vive solo AQUÍ
+            setToken(action.payload.access_token);
         })
         .addCase(loginUser.rejected, (state, action) => {
             state.loading = false;
