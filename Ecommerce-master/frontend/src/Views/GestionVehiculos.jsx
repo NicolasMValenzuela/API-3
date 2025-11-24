@@ -1,35 +1,29 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { fetchConToken } from '../api/api';
+import { useDispatch, useSelector } from 'react-redux';
+import { deleteVehicle } from '../redux/vehiclesSlice';
 
 const GestionVehiculos = () => {
-  const [vehiculos, setVehiculos] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const dispatch = useDispatch();
+  const { items: vehiculos, loading } = useSelector(state => state.vehicles);
   const [searchTerm, setSearchTerm] = useState('');
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [vehicleToDelete, setVehicleToDelete] = useState(null);
+  const [vehicleImages, setVehicleImages] = useState({});
 
-  // Cargar vehículos al montar el componente
+  // Actualizar vehicleImages cuando cambien los vehículos (ya están cargados desde App.jsx)
   useEffect(() => {
-    loadVehicles();
-  }, []);
-
-  const loadVehicles = async () => {
-    try {
-      setLoading(true);
-      const response = await fetch('http://localhost:4002/vehicles');
-      if (response.ok) {
-        const data = await response.json();
-        setVehiculos(data);
-      } else {
-        console.error('Error al cargar vehículos');
-      }
-    } catch (error) {
-      console.error('Error:', error);
-    } finally {
-      setLoading(false);
+    if (vehiculos && vehiculos.length > 0) {
+      const imagesMap = {};
+      vehiculos.forEach(vehicle => {
+        const vehicleId = vehicle.idVehiculo || vehicle.id;
+        if (vehicle.imageUrl) {
+          imagesMap[vehicleId] = vehicle.imageUrl;
+        }
+      });
+      setVehicleImages(imagesMap);
     }
-  };
+  }, [vehiculos]);
 
   // Filtrar vehículos según búsqueda
   const filteredVehicles = vehiculos.filter(vehicle =>
@@ -39,22 +33,13 @@ const GestionVehiculos = () => {
     vehicle.category?.name?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  // Confirmar eliminación
-  const confirmDelete = (vehicle) => {
-    setVehicleToDelete(vehicle);
-    setShowDeleteModal(true);
-  };
-
   // Eliminar vehículo
-  const deleteVehicle = async () => {
+  const handleDeleteVehicle = async () => {
     if (!vehicleToDelete) return;
 
     try {
-      const response = await fetchConToken(`/vehicles/${vehicleToDelete.idVehiculo}`, 'DELETE');
-      if (response) {
-        setVehiculos(prev => prev.filter(v => v.idVehiculo !== vehicleToDelete.idVehiculo));
-        alert('Vehículo eliminado exitosamente');
-      }
+      await dispatch(deleteVehicle(vehicleToDelete.idVehiculo || vehicleToDelete.id)).unwrap();
+      alert('Vehículo eliminado exitosamente');
     } catch (error) {
       console.error('Error al eliminar vehículo:', error);
       alert('Error al eliminar el vehículo');
@@ -64,18 +49,9 @@ const GestionVehiculos = () => {
     }
   };
 
-  // Obtener imagen del vehículo
-  const getVehicleImage = async (vehicleId) => {
-    try {
-      const response = await fetch(`http://localhost:4002/vehicles/${vehicleId}/image`);
-      if (response.ok) {
-        const imageBase64 = await response.text();
-        return `data:image/jpeg;base64,${imageBase64}`;
-      }
-    } catch (error) {
-      console.error('Error al obtener imagen:', error);
-    }
-    return null;
+  // Obtener imagen del vehículo del Redux store
+  const getVehicleImage = (vehicleId) => {
+    return vehicleImages[vehicleId] || null;
   };
 
   if (loading) {
@@ -162,7 +138,15 @@ const GestionVehiculos = () => {
                 <tr key={vehicle.idVehiculo} className="hover:bg-gray-50">
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="h-16 w-16 bg-gray-200 rounded-lg flex items-center justify-center">
-                      <span className="text-gray-500 text-xs">IMG</span>
+                      {getVehicleImage(vehicle.idVehiculo || vehicle.id) ? (
+                        <img 
+                          src={getVehicleImage(vehicle.idVehiculo || vehicle.id)} 
+                          alt={`${vehicle.marca} ${vehicle.modelo}`}
+                          className="h-16 w-16 object-cover rounded-lg"
+                        />
+                      ) : (
+                        <span className="text-gray-500 text-xs">IMG</span>
+                      )}
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
@@ -200,7 +184,10 @@ const GestionVehiculos = () => {
                       Editar
                     </Link>
                     <button
-                      onClick={() => confirmDelete(vehicle)}
+                      onClick={() => {
+                        setVehicleToDelete(vehicle);
+                        setShowDeleteModal(true);
+                      }}
                       className="text-red-600 hover:text-red-900 bg-red-100 px-3 py-1 rounded"
                     >
                       Eliminar
@@ -244,7 +231,7 @@ const GestionVehiculos = () => {
                   Cancelar
                 </button>
                 <button
-                  onClick={deleteVehicle}
+                  onClick={handleDeleteVehicle}
                   className="px-4 py-2 bg-red-600 text-white text-base font-medium rounded-md shadow-sm hover:bg-red-700"
                 >
                   Eliminar

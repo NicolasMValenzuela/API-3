@@ -1,10 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
+import { fetchVehicleById, fetchVehicleImages, postVehicle, updateVehicle, updateVehicleImage } from '../redux/vehiclesSlice';
+import { fetchCategories } from '../redux/categoriesSlice';
 
 
 const FormularioVehiculo = () => {
-  const { id } = useParams(); // Para saber si es edición (id existe) o creación (id no existe)
+  const { id } = useParams();
   const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const { loading, error } = useSelector(state => state.vehicles);
+  const { items: categories } = useSelector(state => state.categories);
   const isEditing = Boolean(id);
 
   const [formData, setFormData] = useState({
@@ -20,74 +26,40 @@ const FormularioVehiculo = () => {
     categoryId: ''
   });
 
-  const [categories, setCategories] = useState([]);
   const [imageFile, setImageFile] = useState(null);
   const [currentImage, setCurrentImage] = useState(null);
-  const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState({});
 
-  // Cargar categorías al montar
   useEffect(() => {
-    loadCategories();
+    
+    dispatch(fetchCategories());
+    
     if (isEditing) {
-      loadVehicle();
-    }
-  }, [id]);
-
-  const loadCategories = async () => {
-    try {
-      console.log('🔄 Cargando categorías...');
-      const response = await fetch('http://localhost:4002/categories');
-      console.log('📡 Response status:', response.status);
-      
-      if (response.ok) {
-        const data = await response.json();
-        console.log('📂 Categorías cargadas:', data);
-        setCategories(data);
-      } else {
-        console.error('❌ Error status:', response.status);
-      }
-    } catch (error) {
-      console.error('❌ Error al cargar categorías:', error);
-    }
-  };
-
-  const loadVehicle = async () => {
-    try {
-      setLoading(true);
-      const response = await fetch(`http://localhost:4002/vehicles/${id}`);
-      if (response.ok) {
-        const vehicle = await response.json();
-        setFormData({
-          marca: vehicle.marca || '',
-          modelo: vehicle.modelo || '',
-          color: vehicle.color || '',
-          numeroChasis: vehicle.numeroChasis?.toString() || '',
-          numeroMotor: vehicle.numeroMotor?.toString() || '',
-          precioBase: vehicle.precioBase?.toString() || '',
-          stock: vehicle.stock?.toString() || '',
-          anio: vehicle.anio?.toString() || '',
-          kilometraje: vehicle.kilometraje?.toString() || '',
-          categoryId: vehicle.category?.id?.toString() || ''
-        });
-
-        // Cargar imagen actual
-        try {
-          const imageResponse = await fetch(`http://localhost:4002/vehicles/${id}/image`);
-          if (imageResponse.ok) {
-            const imageBase64 = await imageResponse.text();
-            setCurrentImage(`data:image/jpeg;base64,${imageBase64}`);
-          }
-        } catch (error) {
-          console.error('Error al cargar imagen:', error);
+      dispatch(fetchVehicleById(id)).then((result) => {
+        if (result.payload) {
+          const vehicle = result.payload;
+          setFormData({
+            marca: vehicle.marca || '',
+            modelo: vehicle.modelo || '',
+            color: vehicle.color || '',
+            numeroChasis: vehicle.numeroChasis?.toString() || '',
+            numeroMotor: vehicle.numeroMotor?.toString() || '',
+            precioBase: vehicle.precioBase?.toString() || '',
+            stock: vehicle.stock?.toString() || '',
+            anio: vehicle.anio?.toString() || '',
+            kilometraje: vehicle.kilometraje?.toString() || '',
+            categoryId: vehicle.category?.id?.toString() || ''
+          });
+          // Cargar imagen del vehículo
+          dispatch(fetchVehicleImages([vehicle.idVehiculo || vehicle.id])).then((imageResult) => {
+            if (imageResult.payload && imageResult.payload.length > 0) {
+              setCurrentImage(imageResult.payload[0].imageUrl);
+            }
+          });
         }
-      }
-    } catch (error) {
-      console.error('Error al cargar vehículo:', error);
-    } finally {
-      setLoading(false);
+      });
     }
-  };
+  }, [id, dispatch, isEditing]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -154,11 +126,7 @@ const FormularioVehiculo = () => {
       return;
     }
 
-    setLoading(true);
-
     try {
-      const formDataToSend = new FormData();
-      
       // Preparar datos del vehículo
       const vehicleData = {
         marca: formData.marca.trim(),
@@ -173,64 +141,30 @@ const FormularioVehiculo = () => {
         category: { id: parseInt(formData.categoryId) }
       };
 
-      formDataToSend.append('vehicle', JSON.stringify(vehicleData));
-      
-      if (imageFile) {
-        formDataToSend.append('image', imageFile);
-      }
-
-      let response;
       if (isEditing) {
-        const vehicleData = {
-          marca: formData.marca.trim(),
-          modelo: formData.modelo.trim(),
-          color: formData.color.trim(),
-          numeroChasis: parseInt(formData.numeroChasis),
-          numeroMotor: parseInt(formData.numeroMotor),
-          precioBase: parseFloat(formData.precioBase),
-          stock: parseInt(formData.stock),
-          anio: parseInt(formData.anio),
-          kilometraje: parseInt(formData.kilometraje) || 0,
-          category: { id: parseInt(formData.categoryId) }
-        };
-
-        response = await fetch(`http://localhost:4002/vehicles/${id}`, {
-          method: 'PUT',
-          headers: {
-            'Authorization': `Bearer ${localStorage.getItem('accessToken')}`,
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify(vehicleData)
-        });
+        // Actualizar datos del vehículo
+        await dispatch(updateVehicle({ id, vehicleData })).unwrap();
+        
+        // Si hay nueva imagen, actualizar solo la imagen
+        if (imageFile) {
+          await dispatch(updateVehicleImage({ id, imageFile })).unwrap();
+        }
+        
+        alert('Vehículo actualizado exitosamente');
       } else {
         // POST con FormData para incluir imagen
         const formDataToSend = new FormData();
         formDataToSend.append('vehicle', JSON.stringify(vehicleData));
         if (imageFile) formDataToSend.append('image', imageFile);
 
-        response = await fetch('http://localhost:4002/vehicles', {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${localStorage.getItem('accessToken')}`
-          },
-          body: formDataToSend
-        });
+        await dispatch(postVehicle(formDataToSend)).unwrap();
+        alert('Vehículo creado exitosamente');
       }
-
-
-      if (response.ok) {
-        alert(isEditing ? 'Vehículo actualizado exitosamente' : 'Vehículo creado exitosamente');
-        navigate('/admin/vehiculos');
-      } else {
-        const errorData = await response.text();
-        console.error('Error:', errorData);
-        alert('Error al guardar el vehículo');
-      }
+      
+      navigate('/admin/vehiculos');
     } catch (error) {
       console.error('Error:', error);
       alert('Error al guardar el vehículo');
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -460,7 +394,6 @@ const FormularioVehiculo = () => {
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Categoría *
               </label>
-              {console.log('🏷️ Categories state:', categories, 'Length:', categories.length)}
               <select
                 name="categoryId"
                 value={formData.categoryId}

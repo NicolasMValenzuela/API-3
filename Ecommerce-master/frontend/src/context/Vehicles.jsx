@@ -22,11 +22,6 @@ export const useVehicles = () => {
   return { vehicles, loading, error, getVehicleById };
 };
 
-// Provider de compatibilidad: dispara la carga inicial de vehículos y renderiza children
 export const VehiclesProvider = ({ children }) => {
-  const dispatch = useDispatch();
-  const { loading = false, fetched = false } = useSelector(state => state.vehicles || {});
-
-  
   return <>{children}</>;
 };
