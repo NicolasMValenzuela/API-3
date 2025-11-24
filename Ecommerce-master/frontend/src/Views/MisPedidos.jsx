@@ -1,6 +1,6 @@
 import { useEffect } from 'react'
 import { useDispatch, useSelector } from "react-redux"
-import { fetchMisPedidos } from "../redux/pedidosSlice.js";
+import { fetchMisPedidos, crearPedido, actualizarPedido, eliminarPedido } from "../redux/pedidosSlice.js";
 
 
 

@@ -1,14 +1,15 @@
 import {configureStore} from '@reduxjs/toolkit';
 import vehiclesReducer from './vehiclesSlice.js';
-
-import pedidosReducer from "./pedidosSlice.js"
-
-import ordersReducer from './ordersSlice.js';
+import pedidosReducer from './pedidosSlice.js';
+import authReducer from "./authSlice.js";
 
 
-import authReducer from './authSlice.js';
+
+
+
 
 import cartReducer from './cartSlice.js';
+import ordersReducer from "./ordersSlice.js";
 
 export const store = configureStore({
   reducer: { 
@@ -19,5 +20,4 @@ export const store = configureStore({
     cart: cartReducer,
   },
 });
-
 export default store;

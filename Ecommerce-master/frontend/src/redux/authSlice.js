@@ -32,58 +32,55 @@ export const registerUser = createAsyncThunk(
   }
 );
 
-const authSlice = createSlice({
-  name: "auth",
-  initialState: {
-    token: localStorage.getItem("token") || null,
-    isAuthenticated: !!localStorage.getItem("token"),
-    loading: false,
-    error: null,
-    registerSuccess: false,
-  },
-  reducers: {
-    logout: (state) => {
-      state.token = null;
-      state.isAuthenticated = false;
-      localStorage.removeItem("token");
+    const authSlice = createSlice({
+    name: "auth",
+    initialState: {
+        token: null, // 👈 Arranca siempre en null (no lee localStorage)
+        isAuthenticated: false,
+        loading: false,
+        error: null,
+        registerSuccess: false,
     },
-    clearAuthState: (state) => {
-      state.error = null;
-      state.registerSuccess = false;
-    }
-  },
-  extraReducers: (builder) => {
-    builder
-      // LOGIN
-      .addCase(loginUser.pending, (state) => {
-        state.loading = true;
+    reducers: {
+        logout: (state) => {
+        state.token = null;
+        state.isAuthenticated = false;
         state.error = null;
-      })
-      .addCase(loginUser.fulfilled, (state, action) => {
-        state.loading = false;
-        state.token = action.payload.access_token;
-        state.isAuthenticated = true;
-        localStorage.setItem("token", action.payload.access_token);
-      })
-      .addCase(loginUser.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.payload;
-      })
+        },
+        clearAuthState: (state) => {
+        state.error = null;
+        state.registerSuccess = false;
+        }
+    },
+    extraReducers: (builder) => {
+        builder
+        .addCase(loginUser.pending, (state) => {
+            state.loading = true;
+            state.error = null;
+        })
+        .addCase(loginUser.fulfilled, (state, action) => {
+            state.loading = false;
+            state.isAuthenticated = true;
+            state.token = action.payload.access_token; //  El token vive solo aca
+            setToken(action.payload.access_token);
 
-      // REGISTER
-      .addCase(registerUser.pending, (state) => {
-        state.loading = true;
-        state.error = null;
-      })
-      .addCase(registerUser.fulfilled, (state) => {
-        state.loading = false;
-        state.registerSuccess = true;
-      })
-      .addCase(registerUser.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.payload;
-      });
-  },
+        })
+        .addCase(loginUser.rejected, (state, action) => {
+            state.loading = false;
+            state.error = typeof action.payload === 'string' ? action.payload : 'Error de credenciales';
+        })
+        .addCase(registerUser.pending, (state) => {
+            state.loading = true;
+        })
+        .addCase(registerUser.fulfilled, (state) => {
+            state.loading = false;
+            state.registerSuccess = true;
+        })
+        .addCase(registerUser.rejected, (state, action) => {
+            state.loading = false;
+            state.error = action.payload || "Error en el registro";
+        });
+    },
 });
 
 export const { logout, clearAuthState } = authSlice.actions;
