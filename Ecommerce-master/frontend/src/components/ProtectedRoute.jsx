@@ -1,9 +1,9 @@
 import React from 'react';
 import { Navigate } from 'react-router-dom';
-import { useCarrito } from '../context/CarritoContext';
+import { useSelector } from 'react-redux';
 
 const ProtectedRoute = ({ children, requiredRole = 'ADMIN' }) => {
-  const { user, isAuthenticated } = useCarrito();
+  const { isAuthenticated, user } = useSelector((state) => state.auth);
 
   // Si no está autenticado, redirigir al login
   if (!isAuthenticated) {

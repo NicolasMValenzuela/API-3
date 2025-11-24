@@ -2,6 +2,7 @@ import { useParams } from "react-router-dom";
 import { useVehicles } from "../context/Vehicles";
 import { useDispatch, useSelector } from "react-redux";
 import { addToCart } from "../redux/cartSlice.js";
+import { notifyCartErrors } from "../utils/toast";
 
 export default function AutoDetalle() {
   const { id } = useParams();
@@ -31,7 +32,7 @@ export default function AutoDetalle() {
 
   const handleAgregar = () => {
     if (!isAuthenticated) {
-      alert("Debes iniciar sesión para agregar al carrito");
+      notifyCartErrors.notAuthenticated();
       return;
     }
     // Asumimos que el ID del vehículo es auto.idVehiculo

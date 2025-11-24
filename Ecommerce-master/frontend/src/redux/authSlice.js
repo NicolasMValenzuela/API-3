@@ -27,6 +27,7 @@ export const registerUser = createAsyncThunk(
     name: "auth",
     initialState: {
         token: null,
+        user: null,
         isAuthenticated: false,
         loading: false,
         error: null,
@@ -35,6 +36,7 @@ export const registerUser = createAsyncThunk(
     reducers: {
         logout: (state) => {
         state.token = null;
+        state.user = null;
         state.isAuthenticated = false;
         state.error = null;
         setToken(null);
@@ -54,6 +56,7 @@ export const registerUser = createAsyncThunk(
             state.loading = false;
             state.isAuthenticated = true;
             state.token = action.payload.access_token;
+            state.user = action.payload.user;
             setToken(action.payload.access_token);
         })
         .addCase(loginUser.rejected, (state, action) => {

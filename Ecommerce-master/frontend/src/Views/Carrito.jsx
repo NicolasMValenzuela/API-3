@@ -8,6 +8,7 @@ import {
   removeFromCart,
   clearCart,
 } from "../redux/cartSlice.js";
+import { notifyCartErrors } from "../utils/toast";
 
 export default function Carrito() {
   const dispatch = useDispatch();
@@ -46,14 +47,12 @@ export default function Carrito() {
 
     try {
       await axiosInstance.post(`/carritos/${idCarrito}/checkout`, datosCheckout);
-      alert("¡Compra realizada con éxito! Tu pedido ha sido generado.");
+      notifyCartErrors.checkoutSuccess();
       dispatch(clearCart());
       navigate("/");
     } catch (error) {
       console.error("Error en el checkout:", error);
-      alert(
-        "Hubo un problema al procesar tu compra. Es posible que no haya stock suficiente."
-      );
+      notifyCartErrors.checkoutError(error.response?.data?.message || error.message);
     }
   };
 

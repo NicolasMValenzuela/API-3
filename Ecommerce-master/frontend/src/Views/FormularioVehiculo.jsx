@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchVehicleById, fetchVehicleImages, postVehicle, updateVehicle, updateVehicleImage } from '../redux/vehiclesSlice';
 import { fetchCategories } from '../redux/categoriesSlice';
+import { notifyVehicleErrors } from '../utils/toast';
 
 
 const FormularioVehiculo = () => {
@@ -82,13 +83,13 @@ const FormularioVehiculo = () => {
     if (file) {
       // Validar que sea una imagen
       if (!file.type.startsWith('image/')) {
-        alert('Por favor selecciona un archivo de imagen válido');
+        notifyVehicleErrors.invalidImage();
         return;
       }
       
       // Validar tamaño (max 5MB)
       if (file.size > 5 * 1024 * 1024) {
-        alert('La imagen no debe superar los 5MB');
+        notifyVehicleErrors.imageTooLarge();
         return;
       }
       
@@ -150,7 +151,7 @@ const FormularioVehiculo = () => {
           await dispatch(updateVehicleImage({ id, imageFile })).unwrap();
         }
         
-        alert('Vehículo actualizado exitosamente');
+        notifyVehicleErrors.updatedSuccessfully();
       } else {
         // POST con FormData para incluir imagen
         const formDataToSend = new FormData();
@@ -158,13 +159,13 @@ const FormularioVehiculo = () => {
         if (imageFile) formDataToSend.append('image', imageFile);
 
         await dispatch(postVehicle(formDataToSend)).unwrap();
-        alert('Vehículo creado exitosamente');
+        notifyVehicleErrors.createdSuccessfully();
       }
       
       navigate('/admin/vehiculos');
     } catch (error) {
       console.error('Error:', error);
-      alert('Error al guardar el vehículo');
+      notifyVehicleErrors.saveError(error.message);
     }
   };
 

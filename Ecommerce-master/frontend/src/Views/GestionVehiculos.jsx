@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { deleteVehicle } from '../redux/vehiclesSlice';
+import { notifyVehicleErrors } from '../utils/toast';
 
 const GestionVehiculos = () => {
   const dispatch = useDispatch();
@@ -39,10 +40,10 @@ const GestionVehiculos = () => {
 
     try {
       await dispatch(deleteVehicle(vehicleToDelete.idVehiculo || vehicleToDelete.id)).unwrap();
-      alert('Vehículo eliminado exitosamente');
+      notifyVehicleErrors.deletedSuccessfully();
     } catch (error) {
       console.error('Error al eliminar vehículo:', error);
-      alert('Error al eliminar el vehículo');
+      notifyVehicleErrors.deleteError();
     } finally {
       setShowDeleteModal(false);
       setVehicleToDelete(null);

@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { registerUser, clearAuthState } from "../redux/authSlice.js";
+import { notifyAuthErrors } from "../utils/toast";
 
 export default function Registrarse() {
   const [formData, setFormData] = useState({
@@ -22,7 +23,7 @@ export default function Registrarse() {
   // Efecto: Si el registro fue exitoso, redirigir al login
   useEffect(() => {
     if (registerSuccess) {
-      alert("Usuario registrado correctamente. Ahora puedes iniciar sesión.");
+      notifyAuthErrors.registrationSuccess();
       dispatch(clearAuthState()); // Reiniciamos el estado para la próxima
       navigate('/login');
     }
@@ -36,7 +37,7 @@ export default function Registrarse() {
     e.preventDefault();
     
     if (formData.password !== formData.repetirPassword) {
-      alert("Las contraseñas no coinciden");
+      notifyAuthErrors.passwordMismatch();
       return;
     }
 

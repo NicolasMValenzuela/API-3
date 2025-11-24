@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { notifyFormErrors } from "../utils/toast";
 
 const Contacto = () => {
   const [formData, setFormData] = useState({
@@ -20,7 +21,7 @@ const Contacto = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
     console.log("Datos enviados:", formData);
-    alert("Gracias por contactarnos. Pronto te responderemos.");
+    notifyFormErrors.contactSuccess();
     setFormData({
       nombre: "",
       correo: "",

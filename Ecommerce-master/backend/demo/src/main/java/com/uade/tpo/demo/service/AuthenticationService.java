@@ -9,6 +9,7 @@ import com.uade.tpo.demo.controllers.auth.AuthenticationRequest;
 import com.uade.tpo.demo.controllers.auth.AuthenticationResponse;
 import com.uade.tpo.demo.controllers.auth.RegisterRequest;
 import com.uade.tpo.demo.controllers.config.JwtService;
+import com.uade.tpo.demo.dto.UserDTO;
 import com.uade.tpo.demo.entity.User;
 import com.uade.tpo.demo.repository.UserRepository;
 
@@ -36,8 +37,15 @@ public class AuthenticationService {
 
                 repository.save(user);
                 var jwtToken = jwtService.generateToken(user);
+                UserDTO userDTO = new UserDTO();
+                userDTO.setIdCliente(user.getIdCliente());
+                userDTO.setUsername(user.getUsername());
+                userDTO.setFirstName(user.getFirstName());
+                userDTO.setLastName(user.getLastName());
+                userDTO.setRole(user.getRole().name());
                 return AuthenticationResponse.builder()
                                 .accessToken(jwtToken)
+                                .user(userDTO)
                                 .build();
         }
 
@@ -50,8 +58,15 @@ public class AuthenticationService {
                 var user = repository.findByUsername(request.getUsername())
                                 .orElseThrow();
                 var jwtToken = jwtService.generateToken(user);
+                UserDTO userDTO = new UserDTO();
+                userDTO.setIdCliente(user.getIdCliente());
+                userDTO.setUsername(user.getUsername());
+                userDTO.setFirstName(user.getFirstName());
+                userDTO.setLastName(user.getLastName());
+                userDTO.setRole(user.getRole().name());
                 return AuthenticationResponse.builder()
                                 .accessToken(jwtToken)
+                                .user(userDTO)
                                 .build();
         }
 }

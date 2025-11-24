@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { fetchConToken } from '../api/api';
+import { notifyCartErrors } from '../utils/toast';
 
 const CarritoContext = createContext();
 
@@ -163,7 +164,7 @@ export function CarritoProvider({ children }) {
     // Validar que tenemos un precio válido
     if (!precioFinal || precioFinal === 0) {
       console.error('El vehículo no tiene precio válido:', auto);
-      alert('Error: El vehículo no tiene precio válido');
+      notifyCartErrors.invalidPrice();
       return;
     }
 
@@ -186,11 +187,11 @@ export function CarritoProvider({ children }) {
           isLoading: false,
           error: null
         });
-        alert(`${auto.marca} ${auto.modelo} agregado al carrito!`);
+        notifyCartErrors.addedToCart(auto.marca, auto.modelo);
       })
       .catch(error => {
         console.error("Error al agregar al carrito:", error);
-        alert(`Error al agregar al carrito: ${error.message}`);
+        notifyCartErrors.addCartError(error.message);
       });
   };
 
@@ -209,7 +210,7 @@ export function CarritoProvider({ children }) {
       })
       .catch(error => {
         console.error("Error al quitar del carrito:", error);
-        alert(`Error al quitar del carrito: ${error.message}`);
+        notifyCartErrors.removeCartError(error.message);
       });
   };
 

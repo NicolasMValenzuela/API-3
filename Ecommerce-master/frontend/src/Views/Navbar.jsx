@@ -112,19 +112,21 @@ const Navbar = () => {
                     Logout
                   </button>
                 </li>
-                <li>
-                  <Link
-                    to="/carrito"
-                    className="relative text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium"
-                  >
-                    Carrito
-                    {cartCount > 0 && (
-                      <span className="absolute -top-2 -right-2 bg-red-600 text-white text-xs rounded-full px-2">
-                        {cartCount}
-                      </span>
-                    )}
-                  </Link>
-                </li>
+                {user?.role === "USER" && (
+                  <li>
+                    <Link
+                      to="/carrito"
+                      className="relative text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium"
+                    >
+                      Carrito
+                      {cartCount > 0 && (
+                        <span className="absolute -top-2 -right-2 bg-red-600 text-white text-xs rounded-full px-2">
+                          {cartCount}
+                        </span>
+                      )}
+                    </Link>
+                  </li>
+                )}
               </>
             ) : (
               <li>
