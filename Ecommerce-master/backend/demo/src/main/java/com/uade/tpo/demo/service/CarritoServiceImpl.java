@@ -64,7 +64,19 @@ public class CarritoServiceImpl implements CarritoService {
     public Carrito addVehiculoToCarrito(Long carritoId, CarritoVehiculo item) {
         Carrito carrito = carritoRepository.findById(carritoId)
                 .orElseThrow(() -> new RuntimeException("Carrito not found"));
+        //item.setCarrito(carrito);
+        //itemRepository.save(item);
+        // 2. Buscar el vehículo correspondiente
+        Vehiculo vehiculo = vehicleRepository.findById(item.getVehiculo().getIdVehiculo())
+            .orElseThrow(() -> new RuntimeException("Vehiculo no encontrado"));
+
+        // 3. Setear los valores correctos en el item
+        item.setVehiculo(vehiculo);
+        item.setValor(vehiculo.getPrecioBase());          // Copiar el precio automáticamente
+        item.setCantidad(item.getCantidad() != null ? item.getCantidad() : 1);
         item.setCarrito(carrito);
+
+        // 4. Guardar el item en la base de datos
         itemRepository.save(item);
 
         Carrito updated = carritoRepository.findByIdWithItems(carritoId).orElse(carrito);

@@ -78,7 +78,7 @@ const cartSlice = createSlice({
         state.idCarrito = action.payload.idCarrito || null;
         state.items = (action.payload.items || []).map(item => ({
           ...item,
-          valor: item.valor || 0
+          valor: item.vehiculo?.valor || 0
         }));
 
       })
