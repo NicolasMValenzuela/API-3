@@ -9,12 +9,8 @@ const AUTH_URL = "/api/v1/auth";
 export const loginUser = createAsyncThunk(
   "auth/login",
   async (credentials, { rejectWithValue }) => {
-    try {
       const response = await axiosInstance.post(`${AUTH_URL}/authenticate`, credentials);
       return response.data;
-    } catch (err) {
-      return rejectWithValue("Credenciales inválidas");
-    }
   }
 );
 

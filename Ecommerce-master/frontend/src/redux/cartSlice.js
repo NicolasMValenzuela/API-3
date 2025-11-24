@@ -5,12 +5,8 @@ import axiosInstance from "../api/axiosConfig.js";
 export const fetchCart = createAsyncThunk(
   "cart/fetchCart",
   async (_, { rejectWithValue }) => {
-    try {
       const resp = await axiosInstance.get("/carritos/mine");
       return resp.data; // CarritoDTO
-    } catch (err) {
-      return rejectWithValue(err.response?.data || "Error al cargar el carrito");
-    }
   }
 );
 
@@ -18,7 +14,6 @@ export const fetchCart = createAsyncThunk(
 export const addToCart = createAsyncThunk(
   "cart/addToCart",
   async (vehiculoId, { getState, rejectWithValue }) => {
-    try {
       let { idCarrito } = getState().cart;
 
       // Si aún no tenemos idCarrito, lo traemos/creamos
@@ -32,11 +27,6 @@ export const addToCart = createAsyncThunk(
       });
 
       return resp.data; // CarritoDTO actualizado
-    } catch (err) {
-      return rejectWithValue(
-        err.response?.data || "Error al agregar al carrito"
-      );
-    }
   }
 );
 
@@ -44,7 +34,6 @@ export const addToCart = createAsyncThunk(
 export const removeFromCart = createAsyncThunk(
   "cart/removeFromCart",
   async (itemId, { getState, rejectWithValue }) => {
-    try {
       await axiosInstance.delete(`/carritos/items/${itemId}`);
 
       const { idCarrito } = getState().cart;
@@ -55,12 +44,7 @@ export const removeFromCart = createAsyncThunk(
 
       const resp = await axiosInstance.get(`/carritos/${idCarrito}`);
       return resp.data; // CarritoDTO actualizado
-    } catch (err) {
-      return rejectWithValue(
-        err.response?.data || "Error al quitar del carrito"
-      );
     }
-  }
 );
 
 const initialState = {
