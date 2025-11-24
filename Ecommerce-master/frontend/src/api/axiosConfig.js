@@ -1,11 +1,16 @@
 import axios from "axios";
 import { API_BASE_URL } from "./api";
 
-
-let tokenInMemory = null;
+// Leer el token del localStorage al inicializar
+let tokenInMemory = localStorage.getItem('authToken') || null;
 
 export const setToken = (token) => {
   tokenInMemory = token;
+  if (token) {
+    localStorage.setItem('authToken', token);
+  } else {
+    localStorage.removeItem('authToken');
+  }
 };
 
 const axiosInstance = axios.create({
@@ -15,11 +20,8 @@ const axiosInstance = axios.create({
 
 axiosInstance.interceptors.request.use(
   (config) => {
-    const state = store.getState();
-    const token = state.auth.token;
-
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
+    if (tokenInMemory) {
+      config.headers.Authorization = `Bearer ${tokenInMemory}`;
     }
     return config;
   },

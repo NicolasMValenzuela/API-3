@@ -133,15 +133,43 @@ export function CarritoProvider({ children }) {
     setCarrito({ items: [], isLoading: false, error: null });
   };
 
-  const agregarAlCarrito = (auto) => {
+  const agregarAlCarrito = async (auto) => {
     if (!isAuthenticated || !carrito || !carrito.idCarrito) {
       console.warn('No se puede agregar al carrito: usuario no autenticado o carrito no disponible');
       return;
     }
 
+    // Validar que el vehículo tenga ID
+    if (!auto.idVehiculo) {
+      console.error('El vehículo no tiene ID');
+      return;
+    }
+
+    // Si el precioBase es 0 o no existe, obtener el vehículo completo del backend
+    let precioFinal = auto.precioBase;
+    if (!precioFinal || precioFinal === 0) {
+      try {
+        const response = await fetch(`http://localhost:4002/vehicles/${auto.idVehiculo}`);
+        if (response.ok) {
+          const vehiculoCompleto = await response.json();
+          precioFinal = vehiculoCompleto.precioBase;
+          console.log('Vehículo cargado del backend:', vehiculoCompleto);
+        }
+      } catch (error) {
+        console.error('Error obteniendo vehículo completo:', error);
+      }
+    }
+
+    // Validar que tenemos un precio válido
+    if (!precioFinal || precioFinal === 0) {
+      console.error('El vehículo no tiene precio válido:', auto);
+      alert('Error: El vehículo no tiene precio válido');
+      return;
+    }
+
     const itemParaApi = {
       vehiculo: { idVehiculo: auto.idVehiculo },
-      valor: auto.precioBase,
+      valor: precioFinal,
       cantidad: 1,
     };
 

@@ -37,7 +37,7 @@ export const registerUser = createAsyncThunk(
     const authSlice = createSlice({
     name: "auth",
     initialState: {
-        token: null, // 👈 Arranca siempre en null (no lee localStorage)
+        token: null,
         isAuthenticated: false,
         loading: false,
         error: null,
@@ -48,6 +48,7 @@ export const registerUser = createAsyncThunk(
         state.token = null;
         state.isAuthenticated = false;
         state.error = null;
+        setToken(null);
         },
         clearAuthState: (state) => {
         state.error = null;
@@ -63,9 +64,8 @@ export const registerUser = createAsyncThunk(
         .addCase(loginUser.fulfilled, (state, action) => {
             state.loading = false;
             state.isAuthenticated = true;
-            state.token = action.payload.access_token; //  El token vive solo aca
+            state.token = action.payload.access_token;
             setToken(action.payload.access_token);
-
         })
         .addCase(loginUser.rejected, (state, action) => {
             state.loading = false;
