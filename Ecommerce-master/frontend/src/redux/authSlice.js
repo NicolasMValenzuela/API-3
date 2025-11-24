@@ -22,15 +22,8 @@ export const loginUser = createAsyncThunk(
 export const registerUser = createAsyncThunk(
   "auth/register",
   async (userData, { rejectWithValue }) => {
-    try {
       const response = await axiosInstance.post(`${AUTH_URL}/register`, userData);
       return response.data;
-    } catch (err) {
-      if (err.response?.status === 409 || err.response?.status === 500) {
-        return rejectWithValue("El email o usuario ya existe");
-      }
-      return rejectWithValue("Error en el registro");
-    }
   }
 );
 

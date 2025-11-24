@@ -1,63 +1,43 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import axiosInstance from "../api/axiosConfig"; // memoria en vez de localStorage
+import axiosInstance from "../api/axiosConfig";
 
 export const fetchPedidos = createAsyncThunk(
   "pedidos/fetchPedidos",
   async (_, thunkAPI) => {
-    try {
       const { data } = await axiosInstance.get("/pedidos");
       return data;
-    } catch (error) {
-      return thunkAPI.rejectWithValue(error.response?.data || error.message);
-    }
   }
 );
 
 export const fetchMisPedidos = createAsyncThunk(
   "pedidos/fetchMisPedidos",
   async (_, thunkAPI) => {
-    try {
       const { data } = await axiosInstance.get("/pedidos/mis-pedidos");
       return data;
-    } catch (error) {
-      return thunkAPI.rejectWithValue(error.response?.data || error.message);
-    }
   }
 );
 
 export const crearPedido = createAsyncThunk(
   "pedidos/crearPedido",
   async (nuevoPedido, thunkAPI) => {
-    try {
       const { data } = await axiosInstance.post("/pedidos", nuevoPedido);
-      return data;
-    } catch (error) {
-      return thunkAPI.rejectWithValue(error.response?.data || error.message);
-    }
+      return data
   }
 );
 
 export const actualizarPedido = createAsyncThunk(
   "pedidos/actualizarPedido",
   async ({ idPedido, datos }, thunkAPI) => {
-    try {
       const { data } = await axiosInstance.put(`/pedidos/${idPedido}`, datos);
       return data;
-    } catch (error) {
-      return thunkAPI.rejectWithValue(error.response?.data || error.message);
-    }
   }
 );
 
 export const eliminarPedido = createAsyncThunk(
   "pedidos/eliminarPedido",
   async (idPedido, thunkAPI) => {
-    try {
       await axiosInstance.delete(`/pedidos/${idPedido}`);
-      return idPedido; // devolvemos solo el id para filtrar en el state
-    } catch (error) {
-      return thunkAPI.rejectWithValue(error.response?.data || error.message);
-    }
+      return idPedido;
   }
 );
 
