@@ -29,6 +29,7 @@ export const registerUser = createAsyncThunk(
         token: null,
         user: null,
         isAuthenticated: false,
+        rol: null, // Ahora hay un rol en el estado
         loading: false,
         error: null,
         registerSuccess: false,
@@ -57,6 +58,7 @@ export const registerUser = createAsyncThunk(
             state.isAuthenticated = true;
             state.token = action.payload.access_token;
             state.user = action.payload.user;
+            state.rol = action.payload.user.rol; // Guardo el rol del usuario
             setToken(action.payload.access_token);
         })
         .addCase(loginUser.rejected, (state, action) => {
