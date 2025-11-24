@@ -51,7 +51,7 @@ export const postVehicle = createAsyncThunk(
   async (formData) => {
     const { data } = await axios.post(API_URL, formData, {
       headers: {
-        'Authorization': `Bearer ${localStorage.getItem('accessToken')}`
+        'Authorization': `Bearer ${sessionStorage.getItem('token')}`
       }
     });
     return data;
@@ -64,7 +64,7 @@ export const updateVehicle = createAsyncThunk(
     const { data } = await axios.put(`${API_URL}/${id}`, vehicleData, {
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${localStorage.getItem('accessToken')}`
+        'Authorization': `Bearer ${sessionStorage.getItem('token')}`
       }
     });
     return data;
@@ -79,7 +79,7 @@ export const updateVehicleImage = createAsyncThunk(
     
     const { data } = await axios.put(`${API_URL}/${id}/image`, formData, {
       headers: {
-        'Authorization': `Bearer ${localStorage.getItem('accessToken')}`
+        'Authorization': `Bearer ${sessionStorage.getItem('token')}`
       }
     });
     return data;
@@ -91,7 +91,7 @@ export const deleteVehicle = createAsyncThunk(
   async (vehicleId) => {
     await axios.delete(`${API_URL}/${vehicleId}`, {
       headers: {
-        'Authorization': `Bearer ${localStorage.getItem('accessToken')}`
+        'Authorization': `Bearer ${sessionStorage.getItem('token')}`
       }
     });
     return vehicleId;

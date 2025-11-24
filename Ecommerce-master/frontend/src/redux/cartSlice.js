@@ -76,7 +76,11 @@ const cartSlice = createSlice({
       .addCase(fetchCart.fulfilled, (state, action) => {
         state.status = "succeeded";
         state.idCarrito = action.payload.idCarrito || null;
-        state.items = action.payload.items || [];
+        state.items = (action.payload.items || []).map(item => ({
+          ...item,
+          valor: item.valor || 0
+        }));
+
       })
       .addCase(fetchCart.rejected, (state, action) => {
         state.status = "failed";
@@ -86,7 +90,11 @@ const cartSlice = createSlice({
       // addToCart
       .addCase(addToCart.fulfilled, (state, action) => {
         state.idCarrito = action.payload.idCarrito || state.idCarrito;
-        state.items = action.payload.items || [];
+        state.items = (action.payload.items || []).map(item => ({
+          ...item,
+          valor: item.valor || 0
+        }));
+
         state.status = "succeeded";
       })
       .addCase(addToCart.rejected, (state, action) => {
@@ -97,7 +105,10 @@ const cartSlice = createSlice({
       // removeFromCart
       .addCase(removeFromCart.fulfilled, (state, action) => {
         state.idCarrito = action.payload.idCarrito || state.idCarrito;
-        state.items = action.payload.items || [];
+        state.items = (action.payload.items || []).map(item => ({
+          ...item,
+          valor: item.valor || 0
+        }));
         state.status = "succeeded";
       })
       .addCase(removeFromCart.rejected, (state, action) => {

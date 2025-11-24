@@ -85,15 +85,15 @@ const Navbar = () => {
                     </span>
                     <span
                       className={`px-2 py-1 rounded text-xs font-semibold ${
-                        user.rol === "ADMIN"
+                        user.role === "ADMIN"
                           ? "bg-red-100 text-red-800"
                           : "bg-blue-100 text-blue-800"
                       }`}
                     >
-                      {user.rol === "ADMIN" ? "VENDEDOR" : "CLIENTE"}
+                      {user.role === "ADMIN" ? "VENDEDOR" : "CLIENTE"}
                     </span>
 
-                    {user.rol === "ADMIN" && (
+                    {user.role === "ADMIN" && (
                       <Link
                         to="/admin/vehiculos"
                         className="bg-gray-700 text-white px-3 py-1 rounded text-sm hover:bg-gray-600 transition-colors"
@@ -112,7 +112,7 @@ const Navbar = () => {
                     Logout
                   </button>
                 </li>
-                {user?.rol === "USER" && (
+                {user?.role === "USER" && (
                   <li>
                     <Link
                       to="/carrito"
@@ -138,7 +138,7 @@ const Navbar = () => {
                 </Link>
               </li>
             )}
-            {isAuthenticated && user && user.rol === "USER" && (
+            {isAuthenticated && user && user.role === "USER" && (
               <li>
                 <Link
                   to="/mis-pedidos"
@@ -148,7 +148,7 @@ const Navbar = () => {
                 </Link>
               </li>
             )}
-            {isAuthenticated && user && user.rol === "ADMIN" && (
+            {isAuthenticated && user && user.role === "ADMIN" && (
               <li>
                 <Link
                   to="/admin/pedidos"
@@ -241,16 +241,16 @@ const Navbar = () => {
                       </span>
                       <span
                         className={`px-2 py-1 rounded text-xs font-semibold ${
-                          user.rol === "ADMIN"
+                          user.role === "ADMIN"
                             ? "bg-red-100 text-red-800"
                             : "bg-blue-100 text-blue-800"
                         }`}
                       >
-                        {user.rol === "ADMIN" ? "VENDEDOR" : "CLIENTE"}
+                        {user.role === "ADMIN" ? "VENDEDOR" : "CLIENTE"}
                       </span>
                     </div>
 
-                    {user.rol === "ADMIN" && (
+                    {user.role === "ADMIN" && (
                       <Link
                         to="/admin/vehiculos"
                         onClick={closeMenu}
@@ -291,7 +291,7 @@ const Navbar = () => {
               </Link>
             )}
 
-            {isAuthenticated && user && user.rol === "USER" && (
+            {isAuthenticated && user && user.role === "USER" && (
               <Link
                 to="/mis-pedidos"
                 onClick={closeMenu}
@@ -300,7 +300,7 @@ const Navbar = () => {
                 Mis Pedidos
               </Link>
             )}
-            {isAuthenticated && user && user.rol === "ADMIN" && (
+            {isAuthenticated && user && user.role === "ADMIN" && (
               <Link
                 to="/admin/pedidos"
                 onClick={closeMenu}
