@@ -1,6 +1,12 @@
 import axios from "axios";
 import { API_BASE_URL } from "./api";
-import { store } from '../redux/store';
+
+
+let tokenInMemory = null;
+
+export const setToken = (token) => {
+  tokenInMemory = token;
+};
 
 const axiosInstance = axios.create({
   baseURL: API_BASE_URL,

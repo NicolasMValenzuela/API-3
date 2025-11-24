@@ -1,5 +1,7 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axiosInstance from "../api/axiosConfig";
+import { setToken } from '../api/axiosConfig';
+
 
 const AUTH_URL = "/api/v1/auth";
 
