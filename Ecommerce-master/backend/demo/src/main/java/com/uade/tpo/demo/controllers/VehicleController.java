@@ -31,23 +31,49 @@ public class VehicleController {
     private VehicleService vehicleService;
 
     @PostMapping(consumes = { MediaType.MULTIPART_FORM_DATA_VALUE })
-    public ResponseEntity<Vehiculo> createVehicle(
-            @RequestPart("vehicle") String vehicleJson,
-            @RequestPart(value = "image", required = false) MultipartFile image) {
-        try {
-            // Convertir el JSON string a objeto Vehiculo
-            com.fasterxml.jackson.databind.ObjectMapper objectMapper = new com.fasterxml.jackson.databind.ObjectMapper();
-            Vehiculo vehicle = objectMapper.readValue(vehicleJson, Vehiculo.class);
-            
-            if (image != null && !image.isEmpty()) {
-                vehicle.setImagen(image.getBytes());
-            }
-            Vehiculo savedVehicle = vehicleService.saveVehicle(vehicle);
-            return new ResponseEntity<>(savedVehicle, HttpStatus.CREATED);
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+public ResponseEntity<?> createVehicle(
+        @RequestPart("vehicle") String vehicleJson,
+        @RequestPart(value = "image", required = false) MultipartFile image) {
+    try {
+        // Convertir JSON a Vehiculo
+        com.fasterxml.jackson.databind.ObjectMapper objectMapper = new com.fasterxml.jackson.databind.ObjectMapper();
+        Vehiculo vehicle = objectMapper.readValue(vehicleJson, Vehiculo.class);
+
+        // Procesar imagen
+        if (image != null && !image.isEmpty()) {
+            vehicle.setImagen(image.getBytes());
         }
-    }    @GetMapping
+
+        Vehiculo savedVehicle = vehicleService.saveVehicle(vehicle);
+        return ResponseEntity.status(HttpStatus.CREATED).body(savedVehicle);
+
+    } catch (RuntimeException ex) {
+        if ("duplicate_chasis".equals(ex.getMessage())) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(
+                java.util.Map.of("message", "El número de chasis ya está registrado")
+            );
+        }
+        if ("duplicate_motor".equals(ex.getMessage())) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(
+                java.util.Map.of("message", "El número de motor ya está registrado")
+            );
+        }
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+            java.util.Map.of("message", ex.getMessage())
+        );
+
+    } catch (IOException ex) {
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
+            java.util.Map.of("message", "Error al procesar la imagen")
+        );
+
+    } catch (Exception ex) {
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
+            java.util.Map.of("message", "Error inesperado al crear el vehículo")
+        );
+    }
+}
+    @GetMapping
     public List<Vehiculo> getAllVehicles() {
         return vehicleService.getAllVehicles();
     }
@@ -84,23 +110,28 @@ public class VehicleController {
     }
 
     @PutMapping("/{id}")
-public ResponseEntity<Vehiculo> updateVehicle(@PathVariable Long id, @RequestBody Vehiculo vehicleDetails) {
-    return vehicleService.getVehicleById(id).map(vehicle -> {
-        vehicle.setMarca(vehicleDetails.getMarca());
-        vehicle.setModelo(vehicleDetails.getModelo());
-        vehicle.setColor(vehicleDetails.getColor());
-        vehicle.setAnio(vehicleDetails.getAnio());
-        vehicle.setKilometraje(vehicleDetails.getKilometraje());
-        vehicle.setPrecioBase(vehicleDetails.getPrecioBase());
-        vehicle.setStock(vehicleDetails.getStock());
-        vehicle.setCategory(vehicleDetails.getCategory());
-        vehicle.setNumeroChasis(vehicleDetails.getNumeroChasis());
-        vehicle.setNumeroMotor(vehicleDetails.getNumeroMotor());
-
-        Vehiculo updatedVehicle = vehicleService.saveVehicle(vehicle);
-        return ResponseEntity.ok(updatedVehicle);
+public ResponseEntity<?> updateVehicle(@PathVariable Long id, @RequestBody Vehiculo vehicle) {
+    return vehicleService.getVehicleById(id).map(existing -> {
+        vehicle.setIdVehiculo(id);
+        try {
+            Vehiculo updatedVehicle = vehicleService.saveVehicle(vehicle);
+            return ResponseEntity.ok(updatedVehicle);
+        } catch (RuntimeException ex) {
+            if (ex.getMessage().equals("duplicate_chasis")) {
+                return ResponseEntity.status(409).body(
+                    java.util.Map.of("message", "El número de chasis ya está registrado")
+                );
+            }
+            if (ex.getMessage().equals("duplicate_motor")) {
+                return ResponseEntity.status(409).body(
+                    java.util.Map.of("message", "El número de motor ya está registrado")
+                );
+            }
+            return ResponseEntity.badRequest().body(java.util.Map.of("message", ex.getMessage()));
+        }
     }).orElse(ResponseEntity.notFound().build());
 }
+
 
 
     @DeleteMapping("/{id}")
