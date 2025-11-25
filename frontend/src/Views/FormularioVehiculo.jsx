@@ -154,11 +154,11 @@ const FormularioVehiculo = () => {
       };
 
       if (isEditing) {
-        // 1. Actualizar solo los datos del vehículo
+        // 1. Actualizar datos del vehículo (ya trae la imagen automáticamente)
         const updateResult = await dispatch(updateVehicle({ id, vehicleData })).unwrap();
         const vehicleId = updateResult.idVehiculo || updateResult.id;
         
-        // 2. Si hay nueva imagen, actualizar la imagen Y recargala desde el servidor
+        // 2. Si hay nueva imagen, actualizar la imagen
         if (imageFile) {
           await dispatch(updateVehicleImage({ id: vehicleId, imageFile })).unwrap();
           // Esperar a que el servidor procese la imagen
@@ -169,17 +169,12 @@ const FormularioVehiculo = () => {
         
         notifyVehicleErrors.updatedSuccessfully();
       } else {
-        // POST con FormData para incluir imagen
+        // POST con FormData para incluir imagen (ya trae la imagen automáticamente)
         const formDataToSend = new FormData();
         formDataToSend.append('vehicle', JSON.stringify(vehicleData));
         if (imageFile) formDataToSend.append('image', imageFile);
 
-        const result = await dispatch(postVehicle(formDataToSend)).unwrap();
-        
-        // Cargar la imagen del nuevo vehículo
-        if (result.idVehiculo) {
-          await dispatch(fetchVehicleImages([result.idVehiculo])).unwrap();
-        }
+        await dispatch(postVehicle(formDataToSend)).unwrap();
         
         notifyVehicleErrors.createdSuccessfully();
       }
@@ -198,7 +193,6 @@ const FormularioVehiculo = () => {
 
         notifyVehicleErrors.saveError(backendMessage);
       }
-
   };
 
   if (loading && isEditing) {

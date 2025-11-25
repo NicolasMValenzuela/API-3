@@ -7,11 +7,7 @@ export const fetchVehicles = createAsyncThunk(
   'vehicles/fetchVehicles',
   async () => {
       const { data } = await axios.get(API_URL);
-      const normalized = Array.isArray(data)
-        ? data.map(v => ({ ...v, id: v.idVehiculo }))
-        : data;
-
-      return normalized;
+      return data;
   },
 
 );
@@ -42,7 +38,7 @@ export const fetchVehicleById = createAsyncThunk(
   'vehicles/fetchVehicleById',
   async (vehicleId) => {
     const { data } = await axios.get(`${API_URL}/${vehicleId}`);
-    return { ...data, id: data.idVehiculo ?? data.id ?? data.idVehicle };
+    return { ...data, id: data.idVehiculo };
   }
 );
 
@@ -54,7 +50,15 @@ export const postVehicle = createAsyncThunk(
         'Authorization': `Bearer ${sessionStorage.getItem('token')}`
       }
     });
-    return data;
+    
+    const imageResponse = await axios.get(`http://localhost:4002/vehicles/${data.idVehiculo}/image`, {
+      responseType: 'text'
+    }).catch(() => ({ data: null }));
+    
+    return {
+      ...data,
+      imageUrl: imageResponse.data ? `data:image/jpeg;base64,${imageResponse.data}` : null
+    };
   }
 );
 
@@ -67,7 +71,15 @@ export const updateVehicle = createAsyncThunk(
         'Authorization': `Bearer ${sessionStorage.getItem('token')}`
       }
     });
-    return data;
+    
+    const imageResponse = await axios.get(`http://localhost:4002/vehicles/${id}/image`, {
+      responseType: 'text'
+    }).catch(() => ({ data: null }));
+    
+    return {
+      ...data,
+      imageUrl: imageResponse.data ? `data:image/jpeg;base64,${imageResponse.data}` : null
+    };
   }
 );
 
@@ -102,7 +114,7 @@ export const deleteVehicle = createAsyncThunk(
 
 const vehiclesSlice = createSlice({
   name: 'vehicles',
-  initialState: { items: [], loading: false, error: null, fetched: false },
+  initialState: { items: [], loading: false, error: null, fetched: false, imagesLoaded: false },
   reducers: {},
   extraReducers: (builder) => {
     builder
@@ -125,7 +137,6 @@ const vehiclesSlice = createSlice({
       })
       .addCase(fetchVehicleById.fulfilled, (state, action) => {
         state.loading = false;
-        // Actualizar el vehículo en el estado si ya existe, sino agregarlo
         const index = state.items.findIndex(v => v.idVehiculo === action.payload.idVehiculo || v.id === action.payload.id);
         if (index !== -1) {
           state.items[index] = {
@@ -133,7 +144,6 @@ const vehiclesSlice = createSlice({
             id: action.payload.idVehiculo
           };
         } else {
-          // Si no existe, agregarlo
           state.items.push({
             ...action.payload,
             id: action.payload.idVehiculo
@@ -151,6 +161,7 @@ const vehiclesSlice = createSlice({
             vehicle.imageUrl = imageUrl;
           }
         });
+        state.imagesLoaded = true;
       })
       .addCase(fetchVehicleImages.rejected, (state, action) => {
         state.loading = false;
@@ -163,6 +174,7 @@ const vehiclesSlice = createSlice({
       .addCase(postVehicle.fulfilled, (state, action) => {
         state.loading = false;
         state.items = [...state.items, { ...action.payload, id: action.payload.idVehiculo }];
+        state.imagesLoaded = false;
       })
       .addCase(postVehicle.rejected, (state, action) => {
         state.loading = false;
@@ -174,15 +186,11 @@ const vehiclesSlice = createSlice({
       })
       .addCase(updateVehicle.fulfilled, (state, action) => {
         state.loading = false;
-        const index = state.items.findIndex(v => v.idVehiculo === action.payload.idVehiculo || v.id === action.payload.id);
+        const index = state.items.findIndex(v => v.idVehiculo === action.payload.idVehiculo);
         if (index !== -1) {
-          const existingImage = state.items[index].imageUrl;
           state.items[index] = { ...action.payload, id: action.payload.idVehiculo };
-          // Preservar la imagen que ya está en el estado
-          if (existingImage) {
-            state.items[index].imageUrl = existingImage;
-          }
         }
+        state.imagesLoaded = false;
       })
       .addCase(updateVehicle.rejected, (state, action) => {
         state.loading = false;
@@ -194,7 +202,6 @@ const vehiclesSlice = createSlice({
       })
       .addCase(updateVehicleImage.fulfilled, (state, action) => {
         state.loading = false;
-        // No hacer nada aquí - la imagen se recargará con fetchVehicleImages
       })
       .addCase(updateVehicleImage.rejected, (state, action) => {
         state.loading = false;
@@ -206,7 +213,8 @@ const vehiclesSlice = createSlice({
       })
       .addCase(deleteVehicle.fulfilled, (state, action) => {
         state.loading = false;
-        state.items = state.items.filter(v => v.idVehiculo !== action.payload && v.id !== action.payload);
+        state.items = state.items.filter(v => v.idVehiculo !== action.payload);
+        state.imagesLoaded = false;
       })
       .addCase(deleteVehicle.rejected, (state, action) => {
         state.loading = false;

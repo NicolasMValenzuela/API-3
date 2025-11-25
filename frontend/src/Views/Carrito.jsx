@@ -16,6 +16,7 @@ export default function Carrito() {
 
   const isAuthenticated = useSelector((state) => state.auth.isAuthenticated);
   const items = useSelector(selectCartItems);
+  const allVehicles = useSelector(state => state.vehicles.items);
   const idCarrito = useSelector(selectCartId);
   const cartStatus = useSelector((state) => state.cart.status);
 
@@ -101,29 +102,31 @@ export default function Carrito() {
               Productos
             </h3>
             <ul className="space-y-4">
-              {items.map((item) => (
-                <li
-                  key={item.id}
-                  className="flex items-center justify-between bg-white p-4 rounded-lg shadow-sm"
-                >
-                  <div>
-                    <span className="font-semibold text-gray-800">
-                      Vehículo: {item.marca} {item.modelo} ({item.anio})
-                    </span>
-                    <p className="text-sm text-gray-500">
-                      Valor: $
-                      {item.valor?.toLocaleString("es-AR") || "0,00"}
-                    </p>
-                  </div>
-                  <button
-                    className="text-red-500 hover:text-red-700 font-medium"
-                    onClick={() => dispatch(removeFromCart(item.id))}
+              {items.map((item) => {
+                const vehiculo = allVehicles.find(v => v.idVehiculo === item.idVehiculo || v.id === item.idVehiculo);
+                return (
+                  <li
+                    key={item.id}
+                    className="flex items-center justify-between bg-white p-4 rounded-lg shadow-sm"
                   >
-                    Quitar
-                  </button>
-                </li>
-                
-              ))}
+                    <div>
+                      <span className="font-semibold text-gray-800">
+                        {vehiculo?.marca} {vehiculo?.modelo} ({vehiculo?.anio})
+                      </span>
+                      <p className="text-sm text-gray-500">
+                        Valor: $
+                        {item.valor?.toLocaleString("es-AR") || "0,00"}
+                      </p>
+                    </div>
+                    <button
+                      className="text-red-500 hover:text-red-700 font-medium"
+                      onClick={() => dispatch(removeFromCart(item.id))}
+                    >
+                      Quitar
+                    </button>
+                  </li>
+                );
+              })}
             </ul>
 
             <div className="mt-8">

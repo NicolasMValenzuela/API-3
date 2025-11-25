@@ -3,7 +3,7 @@ import axiosInstance from "../api/axiosConfig";
 
 export const fetchPedidos = createAsyncThunk(
   "pedidos/fetchPedidos",
-  async (_, thunkAPI) => {
+  async () => {
       const { data } = await axiosInstance.get("/pedidos");
       return data;
   }
@@ -11,7 +11,7 @@ export const fetchPedidos = createAsyncThunk(
 
 export const fetchMisPedidos = createAsyncThunk(
   "pedidos/fetchMisPedidos",
-  async (_, thunkAPI) => {
+  async () => {
       const { data } = await axiosInstance.get("/pedidos/mis-pedidos");
       return data;
   }
@@ -19,7 +19,7 @@ export const fetchMisPedidos = createAsyncThunk(
 
 export const crearPedido = createAsyncThunk(
   "pedidos/crearPedido",
-  async (nuevoPedido, thunkAPI) => {
+  async (nuevoPedido) => {
       const { data } = await axiosInstance.post("/pedidos", nuevoPedido);
       return data
   }
@@ -27,7 +27,7 @@ export const crearPedido = createAsyncThunk(
 
 export const actualizarPedido = createAsyncThunk(
   "pedidos/actualizarPedido",
-  async ({ idPedido, nuevoEstado }, thunkAPI) => {
+  async ({ idPedido, nuevoEstado }) => {
       const { data } = await axiosInstance.patch(`/pedidos/${idPedido}/estado`, { estado: nuevoEstado });
       return data;
   }
@@ -35,7 +35,7 @@ export const actualizarPedido = createAsyncThunk(
 
 export const eliminarPedido = createAsyncThunk(
   "pedidos/eliminarPedido",
-  async (idPedido, thunkAPI) => {
+  async (idPedido) => {
       await axiosInstance.delete(`/pedidos/${idPedido}`);
       return idPedido;
   }
@@ -84,7 +84,7 @@ const pedidosSlice = createSlice({
       })
       .addCase(crearPedido.fulfilled, (state, action) => {
         state.loading = false;
-        state.list.push(action.payload); // agregamos el pedido recién creado 
+        state.list.push(action.payload); 
       })
       .addCase(crearPedido.rejected, (state, action) => {
         state.loading = false;

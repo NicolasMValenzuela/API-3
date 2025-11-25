@@ -1,9 +1,13 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import Card from "../components/Card";
-import { useVehicles } from "../context/Vehicles";
+import { fetchVehicles, fetchVehicleImages } from "../redux/vehiclesSlice";
+import { fetchCategories } from "../redux/categoriesSlice";
 
 const Catalogo = () => {
-  const { vehicles: autos, loading, error } = useVehicles();
+  const dispatch = useDispatch();
+  const { items: autos, loading, fetched, imagesLoaded } = useSelector(state => state.vehicles);
+  const categories = useSelector(state => state.categories.items);
   
   const [orden, setOrden] = useState(""); 
   const [busqueda, setBusqueda] = useState("");
@@ -12,6 +16,26 @@ const Catalogo = () => {
   const [añoSeleccionado, setAñoSeleccionado] = useState("");
   const [precioRango, setPrecioRango] = useState(""); 
   const [kilometrajeRango, setKilometrajeRango] = useState("");
+  const [categoriaSeleccionada, setCategoriaSeleccionada] = useState("");
+
+  useEffect(() => {
+    if (!fetched) {
+      dispatch(fetchVehicles());
+    }
+  }, [dispatch, fetched]);
+
+  useEffect(() => {
+    if (fetched && !imagesLoaded && autos.length > 0) {
+      const vehicleIds = autos.map(v => v.idVehiculo);
+      dispatch(fetchVehicleImages(vehicleIds));
+    }
+  }, [dispatch, fetched, imagesLoaded, autos.length]);
+
+  useEffect(() => {
+    if (!categories.length) {
+      dispatch(fetchCategories());
+    }
+  }, [dispatch, categories.length]);
 
   const marcas = useMemo(() => {
     if (!autos.length) return [];
@@ -57,7 +81,11 @@ const Catalogo = () => {
         return auto.precioBase >= min && auto.precioBase <= max;
       })();
 
-      return coincideBusqueda && coincideMarca && coincideKm && coincidePrecio && coincideModelo && coincideAño;
+      const coincideCategoria = categoriaSeleccionada 
+        ? auto.category?.id === parseInt(categoriaSeleccionada, 10) 
+        : true;
+
+      return coincideBusqueda && coincideMarca && coincideKm && coincidePrecio && coincideModelo && coincideAño && coincideCategoria;
     });
 
     // --- NUEVA LÓGICA DE ORDENAMIENTO MULTI-CRITERIO ---
@@ -83,7 +111,7 @@ const Catalogo = () => {
 
     return filtered;
 
-  }, [autos, busqueda, marcaSeleccionada, modeloSeleccionado, añoSeleccionado, kilometrajeRango, precioRango, orden]);
+  }, [autos, busqueda, marcaSeleccionada, modeloSeleccionado, añoSeleccionado, kilometrajeRango, precioRango, orden, categoriaSeleccionada]);
 
   if (loading) {
     return (
@@ -154,6 +182,20 @@ const Catalogo = () => {
                 {años.map((a, index) => (
                   <option key={`año-${a}-${index}`} value={a}>{a}</option>
                 ))}
+            </select>
+            <select
+              className="p-2 border border-gray-300 rounded bg-white"
+              value={categoriaSeleccionada}
+              onChange={(e) => setCategoriaSeleccionada(e.target.value)}
+            >
+              <option value="">Categoría</option>
+              {categories.map((cat) => { 
+                const nombre = cat.name || cat.nombre || '';
+                const id = cat.id || cat.idCategoria || '';
+                return nombre && id ? (
+                  <option key={`categoria-${id}`} value={id}>{nombre}</option>
+                ) : null;
+              })}
             </select>
             <select
               className="p-2 border border-gray-300 rounded bg-white"

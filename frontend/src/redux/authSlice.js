@@ -5,30 +5,20 @@ import { setToken } from '../api/axiosConfig';
 
 const AUTH_URL = "/api/v1/auth";
 
-// LOGIN
 export const loginUser = createAsyncThunk(
   "auth/login",
-  async (credentials, { rejectWithValue }) => {
-      try {
-          const response = await axiosInstance.post(`${AUTH_URL}/authenticate`, credentials);
-          return response.data;
-      } catch (error) {
-          const errorMessage = 
-              error.response?.data?.message || 
-              error.response?.data?.error || 
-              error.message || 
-              "Error al iniciar sesión";
-          return rejectWithValue(errorMessage);
-      }
+  async (credentials) => {
+    const response = await axiosInstance.post(`${AUTH_URL}/authenticate`, credentials);
+    return response.data;
   }
 );
 
-// REGISTER
+
 export const registerUser = createAsyncThunk(
   "auth/register",
-  async (userData, { rejectWithValue }) => {
-      const response = await axiosInstance.post(`${AUTH_URL}/register`, userData);
-      return response.data;
+  async (userData) => {
+    const response = await axiosInstance.post(`${AUTH_URL}/register`, userData);
+    return response.data;
   }
 );
 
@@ -38,7 +28,7 @@ export const registerUser = createAsyncThunk(
         token: null,
         user: null,
         isAuthenticated: false,
-        role: null, // Ahora hay un rol en el estado
+        role: null,
         loading: false,
         error: null,
         registerSuccess: false,
@@ -67,7 +57,7 @@ export const registerUser = createAsyncThunk(
             state.isAuthenticated = true;
             state.token = action.payload.access_token;
             state.user = action.payload.user;
-            state.role = action.payload.user.role; // Guardo el rol del usuario
+            state.role = action.payload.user.role;
             setToken(action.payload.access_token);
             sessionStorage.setItem("token", action.payload.access_token);
 
