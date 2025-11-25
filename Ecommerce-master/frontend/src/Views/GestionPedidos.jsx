@@ -16,8 +16,9 @@
     const estadosPosibles = ['PAGADO', 'EN_PREPARACION', 'LISTO_PARA_RECOGER', 'FINALIZADO'];
 
     const handleEstadoChange = (pedidoId, nuevoEstado) => {
-        dispatch(actualizarPedido({ idPedido: pedidoId,  datos: { estado: nuevoEstado } }))
+        dispatch(actualizarPedido({ idPedido: pedidoId, nuevoEstado }));
     }
+
     if (loading) return <p className="mt-20 text-center">Cargando pedidos...</p>;
 
     return (

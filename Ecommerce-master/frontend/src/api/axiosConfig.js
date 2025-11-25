@@ -1,16 +1,12 @@
 import axios from "axios";
 import { API_BASE_URL } from "./api";
 
-// Leer el token del localStorage al inicializar
-let tokenInMemory = localStorage.getItem('authToken') || null;
+// Token en memoria
+let tokenInMemory = null;
 
+// Función para setear el token desde cualquier parte de la app
 export const setToken = (token) => {
   tokenInMemory = token;
-  if (token) {
-    localStorage.setItem('authToken', token);
-  } else {
-    localStorage.removeItem('authToken');
-  }
 };
 
 const axiosInstance = axios.create({

@@ -27,8 +27,8 @@ export const crearPedido = createAsyncThunk(
 
 export const actualizarPedido = createAsyncThunk(
   "pedidos/actualizarPedido",
-  async ({ idPedido, datos }, thunkAPI) => {
-      const { data } = await axiosInstance.put(`/pedidos/${idPedido}`, datos);
+  async ({ idPedido, nuevoEstado }, thunkAPI) => {
+      const { data } = await axiosInstance.patch(`/pedidos/${idPedido}/estado`, { estado: nuevoEstado });
       return data;
   }
 );
