@@ -164,9 +164,19 @@ const FormularioVehiculo = () => {
       
       navigate('/admin/vehiculos');
     } catch (error) {
-      console.error('Error:', error);
-      notifyVehicleErrors.saveError(error.message);
-    }
+        console.error("Error:", error);
+
+        
+        const backendMessage =
+          error?.response?.data?.message ||
+          error?.response?.data?.error ||
+          error?.response?.data ||
+          error?.message ||
+          "";
+
+        notifyVehicleErrors.saveError(backendMessage);
+      }
+
   };
 
   if (loading && isEditing) {

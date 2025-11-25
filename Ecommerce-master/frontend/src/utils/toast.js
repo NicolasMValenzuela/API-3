@@ -63,17 +63,33 @@ export const notifyVehicleErrors = {
   invalidImage: () => showError("Por favor selecciona un archivo de imagen válido"),
   imageTooLarge: () => showError("La imagen no debe superar los 5MB"),
   saveError: (error) => {
-    if (error?.includes("Duplicate entry") || error?.includes("duplicate")) {
-      if (error?.includes("numero_chasis")) {
-        return showError("El número de chasis ya está registrado");
-      } else if (error?.includes("numero_motor")) {
-        return showError("El número de motor ya está registrado");
-      } else {
-        return showError("Este vehículo ya existe en la base de datos");
-      }
+  
+    const backendMessage =
+      error?.response?.data?.message ||
+      error?.response?.data?.error ||
+      error?.response?.data ||
+      error?.message ||
+      error ||
+      "";
+
+    const msg = backendMessage.toString().toLowerCase();
+
+    if (msg.includes("chasis")) {
+      return showError("El número de chasis ya está registrado");
     }
-    return showError(`Error al guardar el vehículo: ${error || "Intenta nuevamente"}`);
+
+    if (msg.includes("motor")) {
+      return showError("El número de motor ya está registrado");
+    }
+
+    if (msg.includes("409")) {
+      return showError("Ya existe un vehículo con ese número de motor o chasis");
+    }
+
+    return showError(`Error al guardar el vehículo: ${backendMessage}`);
   },
+
+
   deleteError: () => showError("Error al eliminar el vehículo"),
   loadError: () => showError("Error al cargar los vehículos"),
   duplicateChasis: () => showError("El número de chasis ya está registrado"),
