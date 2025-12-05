@@ -1,13 +1,13 @@
 import { useEffect } from 'react'
 import { useDispatch, useSelector } from "react-redux"
-import { fetchMisPedidos, crearPedido, actualizarPedido, eliminarPedido } from "../redux/pedidosSlice.js";
+import { fetchMisPedidos} from "../redux/pedidosSlice.js";
 
 
 
 import { Link } from 'react-router-dom'
 
 const ProgressBar = ({ estado }) => {
-  const estados = ['PAGADO', 'EN_PREPARACION', 'LISTO_PARA_RECOGER', 'FINALIZADO']
+  const estados = ['PAGADO', 'EN_PREPARACION', 'LISTO_PARA_RECOGER', 'FINALIZADO', 'CANCELADO']
   const currentIndex = estados.indexOf(estado)
 
   return (

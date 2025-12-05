@@ -1,16 +1,30 @@
 import { useParams } from "react-router-dom";
-import { useVehicles } from "../context/Vehicles";
 import { useDispatch, useSelector } from "react-redux";
 import { addToCart } from "../redux/cartSlice.js";
+import { fetchVehicleById, fetchVehicleImages } from "../redux/vehiclesSlice.js";
 import { notifyCartErrors } from "../utils/toast";
+import { useEffect } from "react";
 
 export default function AutoDetalle() {
   const { id } = useParams();
   const dispatch = useDispatch();
-  const { getVehicleById, loading, vehicles } = useVehicles();
+  const { items: vehicles, loading } = useSelector(state => state.vehicles);
   const isAuthenticated = useSelector((state) => state.auth.isAuthenticated);
 
-  const auto = getVehicleById(id);
+  useEffect(() => {
+    if (id) {
+      dispatch(fetchVehicleById(id));
+    }
+  }, [dispatch, id]);
+
+  useEffect(() => {
+    const auto = vehicles.find(v => v.idVehiculo === parseInt(id) || v.id === parseInt(id));
+    if (auto && !auto.imageUrl) {
+      dispatch(fetchVehicleImages([auto.idVehiculo]));
+    }
+  }, [dispatch, id, vehicles]);
+
+  const auto = vehicles.find(v => v.idVehiculo === parseInt(id) || v.id === parseInt(id));
 
   if (loading) {
     return (
@@ -35,7 +49,6 @@ export default function AutoDetalle() {
       notifyCartErrors.notAuthenticated();
       return;
     }
-    // Asumimos que el ID del vehículo es auto.idVehiculo
     dispatch(addToCart(auto.idVehiculo));
   };
 
